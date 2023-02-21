@@ -1,0 +1,4 @@
+pkdir="/data/system/tmrepo/package"
+
+mv $pkdir/tma/tma/tma /system/bin;chmod 755 /system/bin/tma
+mv $pkdir/tma/tma /data/system

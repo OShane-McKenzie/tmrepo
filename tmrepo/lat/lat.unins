@@ -1,0 +1,1 @@
+rm -rf /data/lat;rm -rf /system/bin/LAT;echo "Done"

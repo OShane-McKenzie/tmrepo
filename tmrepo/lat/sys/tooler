@@ -1,0 +1,148 @@
+mount -o rw,remount / 2>/dev/null
+mount -o rw,remount /system 2>/dev/null
+mount -o rw,remount /data 2>/dev/null
+
+instl="$1"
+rootPATH=/data/lat/modules/elevated
+xpsdPATH=/data/lat/modules/psd
+sysPATH=/data/lat/mnt/system
+mainPATH=/data/lat
+exPATH="$mainPATH/sys"
+
+
+function roots ()
+{
+	#cp -f -R $rootPATH/app/SuperSU $sysPATH/app
+
+	cp -f -R $rootPATH/etc/* $sysPATH/etc
+
+	cd $sysPATH/bin
+
+	ln -sf /system/etc/install-recovery.sh
+
+	cp -f -R $rootPATH/etc/* $sysPATH/etc
+
+	cp -f -R $rootPATH/lib/* $sysPATH/lib
+
+	cp -f -R $rootPATH/xbin/* $sysPATH/xbin/
+
+	$exPATH/perm -rw $sysPATH/etc/install-recovery.sh $sysPATH/lib/libsupol.so
+	$exPATH/perm -rwx $sysPATH/xbin/daemonsu $sysPATH/xbin/su $sysPATH/xbin/supolicy
+
+	echo "Done"
+}
+
+function uroots ()
+{
+	#rm -rf $sysPATH/app/SuperSU
+
+	rm -rf $sysPATH/etc/install-recovery.sh
+	
+	rm -rf $sysPATH/bin/install-recovery.sh
+
+	cd $sysPATH/bin
+
+	rm -rf $sysPATH/lib/libsupol.so
+
+	rm -rf $sysPATH/xbin/daemonsu
+
+	rm -rf $sysPATH/xbin/su
+
+	rm -rf $sysPATH/xbin/supolicy 
+	
+	echo "done"
+}
+
+function xpsd ()
+{
+	cp -f -R $xpsdPATH/lib/* $sysPATH/lib
+
+	cp -f -R $xpsdPATH/lib64/* $sysPATH/lib64
+
+	cp -f -R $xpsdPATH/framework/* $sysPATH/framework
+
+	cp -f -R $xpsdPATH/bin/* $sysPATH/bin
+	
+	cp -f -R $xpsdPATH/xposed.prop $sysPATH
+
+	$exPATH/perm -rw $sysPATH/lib/libart-compiler.so $sysPATH/lib/libart.so $sysPATH/lib/libsigchain.so $sysPATH/lib/libxposed_art.so
+	$exPATH/perm -rw $sysPATH/lib64/libart-compiler.so $sysPATH/lib64/libart.so $sysPATH/lib64/libsigchain.so $sysPATH/lib64/libxposed_art.so
+	$exPATH/perm -rw $sysPATH/framework/XposedBridge.jar $sysPATH/xposed.prop
+	$exPATH/perm -rwx $sysPATH/bin/app_process32_xposed $sysPATH/bin/app_process64_xposed $sysPATH/bin/dex2oat $sysPATH/bin/oatdump $sysPATH/bin/patchoat
+	
+}
+
+function kern ()
+{
+	#local kerDir=$(cat mainPATH/wrkshop/name.lat)
+	echo "Backing up old kernel..."
+	echo ""
+	$exPATH/anzip -c -D $sysPATH/lib/firmware $mainPATH/kernel/backup/lib
+	$exPATH/anzip -c -D $sysPATH/lib/modules $mainPATH/kernel/backup/lib
+	echo "Installing new kernel"
+	echo ""
+	rm -rf $sysPATH/lib/firmware
+	rm -rf $sysPATH/lib/modules
+	mv $mainPATH/wrkshop/Kernel/lib/firmware $sysPATH/lib
+	mv $mainPATH/wrkshop/Kernel/lib/modules $sysPATH/lib
+	mv $mainPATH/wrkshop/Kernel/kernel $mainPATH/kernel
+	echo "Done, check $mainPATH/kernel"
+}
+
+function messa ()
+{
+	chmod -R 644 $mainPATH/mesa/*
+
+	$exPATH/cpbk $mainPATH/mesa/lib *.so $sysPATH/lib $mainPATH/mesa/backup/lib
+	$exPATH/cpbk $mainPATH/mesa/lib/dri *.so $sysPATH/lib/dri $mainPATH/mesa/backup/lib/dri
+	$exPATH/cpbk $mainPATH/mesa/lib/egl *.so $sysPATH/lib/egl $mainPATH/mesa/backup/lib/egl
+	$exPATH/cpbk $mainPATH/mesa/lib/hw *.so $sysPATH/lib/hw $mainPATH/mesa/backup/lib/hw
+
+	$exPATH/cpbk $mainPATH/mesa/lib64 *.so $sysPATH/lib64 $mainPATH/mesa/backup/lib64
+	$exPATH/cpbk $mainPATH/mesa/lib64/dri *.so $sysPATH/lib64/dri $mainPATH/mesa/backup/lib64/dri
+	$exPATH/cpbk $mainPATH/mesa/lib64/egl *.so $sysPATH/lib64/egl $mainPATH/mesa/backup/lib64/egl
+	$exPATH/cpbk $mainPATH/mesa/lib64/hw *.so $sysPATH/lib64/hw $mainPATH/mesa/backup/lib64/hw
+
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib64 *.so $sysPATH/vendor/lib64 $mainPATH/mesa/backup/vendor/lib64
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib64/dri *.so $sysPATH/vendor/lib64/dri $mainPATH/mesa/backup/vendor/lib64/dri
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib64/egl *.so $sysPATH/vendor/lib64/egl $mainPATH/mesa/backup/vendor/lib64/egl
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib64/hw *.so $sysPATH/vendor/lib64/hw $mainPATH/mesa/backup/vendor/lib64/hw
+
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib64/mediadrm *.so $sysPATH/vendor/lib64/mediadrm $mainPATH/mesa/backup/vendor/lib64/mediadrm
+
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib *.so $sysPATH/vendor/lib $mainPATH/mesa/backup/vendor/lib
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib/dri *.so $sysPATH/vendor/lib/dri $mainPATH/mesa/backup/vendor/lib/dri
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib/egl *.so $sysPATH/vendor/lib/egl $mainPATH/mesa/backup/vendor/lib/egl
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib/hw *.so $sysPATH/vendor/lib/hw $mainPATH/mesa/backup/vendor/lib/hw
+
+	$exPATH/cpbk $mainPATH/mesa/vendor/lib/mediadrm *.so $sysPATH/vendor/lib/mediadrm $mainPATH/mesa/backup/vendor/lib/mediadrm
+	echo "Done, check $mainPATH/mesa"
+}
+
+if [ ! -f "/data/lat/sys/system.lat" ]
+then
+	echo "system is not mounted"
+	echo ""
+else
+	if [ "$instl" -eq 1 ]
+	then
+		roots
+	elif [ "$instl" -eq 2 ]
+	then
+		xpsd
+	elif [ "$instl" -eq 3 ]
+	then
+		kern
+	elif [ "$instl" -eq 4 ]
+	then
+		messa
+	elif [ "$instl" -eq 5 ]
+	then
+		uroots
+	else
+		echo "Invalid arguments"
+		echo ""
+		sleep 2
+		/data/lat/sys/retrn
+	fi
+fi

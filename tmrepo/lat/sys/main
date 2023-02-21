@@ -1,0 +1,288 @@
+mount -o rw,remount / 2>/dev/null
+mount -o rw,remount /system 2>/dev/null
+#mount -o rw,remount /data 2>/dev/null
+
+CYN='\033[0;36m'
+GRN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+sysPATH="/data/lat/mnt/system"
+datPATH="/data/lat/mnt/data"
+mainPATH=/data/lat
+exPATH=$mainPATH/sys
+
+#function loop ()
+#{
+#	clear
+#	/data/lat/sys/main
+#}
+
+x=0
+while [ "$x" -lt 1 ]
+do
+{
+cd $mainPATH
+clear
+echo -e "${GRN}"
+echo "                         MAIN MENU${CYN}"
+echo "==========================================================="
+echo ""
+echo "Mod system.img                                          [a]"
+echo ""
+echo "Mod data.img                                            [b]"
+echo ""
+echo "Extract  initrd.img, ramdisk.img, install.img           [c]"
+echo ""
+echo "Compress  initrd.img, ramdisk.img, install.img          [d]"
+echo ""
+echo "Root system.img                                         [e]"
+echo ""
+echo "un-Root system.img                                      [f]"
+echo ""
+echo "Install Xposed                                          [g]"
+echo ""
+echo "Update Kernel                                           [h]"
+echo ""
+echo "Update Mesa                                             [i]"
+echo ""
+echo "Finish mod  save system.img                             [j]"
+echo ""
+echo "Finish mod & save data.img                              [k]"
+echo ""
+echo "==========================================================="
+echo "${RED}"
+echo "[Q] quit___________________________________________________${NC}"
+echo ""
+echo "(\"_\") Ready!"
+echo "${GRN}"
+read mainopts
+
+case "$mainopts" in
+
+  "A" | "a")
+	echo "enter path to image (path/to/system.img) or paste path in $mainPATH/system.txt and press ENTER"
+	touch $mainPATH/system.txt
+	read spth
+	if [ -z "$spth" ]
+	then
+	       cspth=$(cat $mainPATH/system.txt)
+	       $exPATH/mounter $cspth 1
+	       rm -rf $mainPATH/system.txt
+	       echo "Press ENTER to continue"
+            read keys
+            unset $keys
+            unset $mainopts
+            #loop
+    else
+            $exPATH/mounter $spth 1
+            echo "Press ENTER to continue"
+            read keys
+            unset $keys
+            unset $mainopts
+            #loop
+    fi
+    ;;
+
+  "B" | "b")
+    echo "enter path to image (path/to/data.img) or paste path in $mainPATH/data.txt and press ENTER"
+	touch $mainPATH/data.txt
+	read dpth
+	if [ -z "$spth" ]
+	then
+	       cdpth=$(cat $mainPATH/data.txt)
+	       $exPATH/mounter $cdpth 2
+	       rm -rf $mainPATH/data.txt
+	       echo "Press ENTER to continue"
+            read keys
+            unset $keys
+            unset $mainopts
+            #loop
+    else
+            $exPATH/mounter $dpth 2
+            echo "Press ENTER to continue"
+            read keys
+            unset $keys
+            unset $mainopts
+            #loop
+     fi
+    ;;
+
+  "C" | "c")
+    echo "(1) initrd.img, (2) ramdisk.img, (3) install.img"
+    echo ""
+    echo "Enter number"
+    echo ""
+    read -n 2 img
+    
+    if [ "$img" -eq 1 ]
+    then
+            select="initrd.img"
+            action="initrd"
+            unset $mainopts
+    elif [ "$img" -eq 2 ]
+    then
+            select="ramdisk.img"
+            action="ramdisk"
+            unset $mainopts
+    elif [ "$img" -eq 3 ]
+    then
+            select="install.img"
+            action="install"
+            unset $mainopts
+     else
+           echo "Invalid"
+           sleep 2
+           unset $mainopts
+           unset $img
+    	      #loop
+    	fi
+    echo " Place $select at $mainPATH and press any key to continue"
+    read keys
+    unset $keys
+    if [ -f "$mainPATH/$select" ]
+    then
+    	$exPATH/iniram $action
+    	unset $action
+    	unset $select
+    	echo "Press ENTER to continue"
+            read keys
+            unset $keys
+            unset $mainopts
+            #loop
+    else
+    	echo "No image found"
+    	unset $action
+    	unset $select
+    	unset $mainopts
+    	sleep 2
+    	#loop
+    fi
+    ;;
+
+  "D" | "d")
+    echo "(1) initrd.img, (2) ramdisk.img, (3) install.img"
+    echo ""
+    echo "Enter number"
+    echo ""
+    read -n 2 img
+    
+    if [ "$img" -eq 1 ]
+    then
+            select="initrd.img"
+            action="initrd"
+            unset $mainopts
+    elif [ "$img" -eq 2 ]
+    then
+            select="ramdisk.img"
+            action="ramdisk"
+    elif [ "$img" -eq 3 ]
+    then
+            select="install.img"
+            action="install"
+            unset $mainopts
+     else
+           echo "Invalid"
+           unset $mainopts
+           sleep 2
+    	      #loop
+    	fi
+    	$exPATH/iniramcomp $action
+    	unset $action
+    	unset $select
+    	echo "Press ENTER to continue"
+     read keys
+     unset $keys
+     unset $mainopts
+     #loop
+    ;;
+
+  "E" | "e")
+    $exPATH/tooler 1
+    echo "Press ENTER to continue"
+    read keys
+    unset $keys
+    unset $mainopts
+    #loop
+    ;;
+
+  "F" | "f")
+    $exPATH/tooler 5
+    echo "Press ENTER to continue"
+    read keys
+    unset $keys
+    unset $mainopts
+    #loop
+    ;;
+
+  "G" | "g")
+    $exPATH/tooler 2
+    echo "Press ENTER to continue"
+    read keys
+    unset $keys
+    unset $mainopts
+    #loop
+    ;;
+
+  "H" | "h")
+	rm -rf $mainPATH/wrkshop/* 2>/dev/null
+	mkdir -p $mainPATH/wrkshop/Kernel
+	echo "Extract contents of kernel into $mainPATH/wrkshop/Kernel"
+	echo "Then press ENTER to continue"
+	echo ""
+	read keys
+    unset $keys
+    $exPATH/tooler 3
+    echo "Press ENTER to continue"
+    read keys
+    unset $keys
+    unset $mainopts
+    #loop
+    ;;
+
+  "I" | "i")
+	echo "Extract contents of mesa into $mainPATH/mesa"
+	echo "Press ENTER to continue"
+	echo ""
+	read keys
+    unset $keys
+    $exPATH/tooler 4
+    echo "Press ENTER to continue"
+    read keys
+    unset $keys
+    unset $mainopts
+    #loop
+    ;;
+
+  "J" | "j")
+	$exPATH/umounter 1
+	echo "Done"
+	unset $mainopts
+	sleep 2
+	#loop
+    ;;
+
+  "K" | "k")
+    $exPATH/umounter 2
+    echo "Done"
+    unset $mainopts
+	sleep 2
+	#loop
+    ;;
+    
+  "Q" | "q")
+    clear
+    let "x += 1"
+    exit
+    ;;
+
+  *)
+    echo "${RED}Invalid Choice${GRN}"
+    sleep 1.3
+    unset $mainopts
+    clear
+    #loop
+    ;;
+esac
+}
+done

@@ -1,0 +1,3 @@
+rm -rf /data/system/tmenc
+rm -rf /system/bin/tmencrypt
+rm -rf /system/bin/tmrun

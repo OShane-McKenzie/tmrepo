@@ -1,0 +1,69 @@
+mount -o rw,remount / 2>/dev/null
+mount -o rw,remount /system 2>/dev/null
+#mount -o rw,remount /data 2>/dev/null
+
+param="$1"
+param2="$2"
+function print_help ()
+{
+	echo "usage: perm [options] files/directories"
+	echo ""
+	echo "any number of files or directories separated by single space"
+	echo ""
+	echo "-r set permission to read-only
+-rw set permission to read-write
+-rwx set permission to read-write-execute
+		 "
+if [ "$param" == "--help" ]
+then
+    print_help
+    exit
+fi
+}
+	if [ "$param" != "-r" ] && [ "$param" != "-rw" ] && [ "$param" != "-rwx" ]
+    then
+
+    	print_help
+    	exit
+	fi
+
+	if [ -z "$param2" ]
+	then
+	    print_help
+	    exit
+	fi
+
+case $param in
+
+  -r)
+    lvl=444
+    ;;
+
+  -rw)
+    lvl=644
+    ;;
+
+  -rwx)
+    lvl=755
+    ;;
+
+  *)
+    print_help
+    exit
+    ;;
+esac
+i="0"
+for var in "$@"
+do
+    if [ "$var" != "-r" ] && [ "$var" != "-rw" ] && [ "$var" != "-rwx" ]
+    then
+    	if [ -f "$var" ] || [ -d "$var" ]
+    	then
+	    	chmod $lvl $var
+	    	let "i+=1"
+	    else
+	    	echo "$var: No such file or directory"
+	    fi
+    fi
+done
+echo "$i permission(s) set"

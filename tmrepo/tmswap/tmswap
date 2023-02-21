@@ -1,0 +1,115 @@
+#Dev: Lite Riyusaki t.me/litecodzofficial
+#TeamMajor
+#Provided Free
+
+mount -o rw,remount /
+
+task="$1"
+taskguide="$2"
+
+function print_help ()
+{
+	echo "
+	
+	Usage: cmd [opts] [opts]
+
+	example: tmswap -c 4 or tmswap --create 4, this will create a swapfile of 4gb you can specifiy from 1 to 9 gb
+
+	tmswap -o, this will enable swap. swap will be disabled after each reboot
+
+	tmswap --on-create 4, this will create a swapfile of 4gb then enable the swap. you can specifiy from 1 to 9 gb"
+	exit
+}
+function numCheck ()
+{
+
+	local test="$1"
+	if [ -z "$test" ]
+	then
+	  	echo "No swap size specified"
+	    print_help
+	fi
+
+	if echo "$test" | grep -qE '^[1-9]+$'; then
+	   NumVal=true
+	else
+	   echo "number must be an integer > 0 & <= 9"
+	   print_help
+	fi
+}
+
+function evaluate_task ()
+{
+	local test="$1"
+	case $test in
+
+	  "--create")
+	    crt=1
+	    swp_on=0
+	    ;;
+
+	  "-c")
+	    crt=1
+	    swp_on=0
+	    ;;
+
+	  "-o")
+	    crt=0
+	    swp_on=1
+         ;;
+         
+	   "--on-create")
+	    crt=1
+	    swp_on=1
+	    ;;
+
+	   "--help")
+	    print_help
+	    ;;
+	    *)
+		echo "Unknown Arguments"
+		echo "tmswap --help for more information"
+		exit 1
+	    ;;
+	esac
+}
+
+function mk_swap ()
+{
+	local swap_f=/data/tmswp
+	if [ "$crt" -eq 1 ] && [ "$swp_on" -eq 0 ]
+	then
+		numCheck $taskguide
+		cd /data
+		if [ -f "$swap_f" ];then echo "Swap file found, will replace with new swap of size ${1}gb";fi
+		echo "This may take some time depending on size of swap file usually a minute or two or less for 4gb and under"
+		busybox dd bs=1M if=/dev/zero of=tmswp count=${1}000
+	elif [ "$crt" -eq 1 ] && [ "$swp_on" -eq 1 ]
+	then
+		numCheck $taskguide
+		cd /data
+		if [ -f "$swap_f" ];then echo "Swap file found, will replace with new swap of size ${1}gb";fi
+          echo "This may take some time depending on size of swap file usually a minute or two or less for 4gb and under"
+		busybox dd bs=1M if=/dev/zero of=tmswp count=${1}000
+		mkswap $swap_f
+		swapon $swap_f
+		sysctl vm.swappiness=90
+	elif [ "$crt" -eq 0 ] && [ "$swp_on" -eq 1 ]
+	then
+		if [ ! -f "$swap_f" ]
+		then
+			echo "No Swap file found"
+			print_help
+		else
+			mkswap $swap_f
+			swapon $swap_f
+			sysctl vm.swappiness=90
+		fi
+	else
+		echo "Unknown action"
+		print_help
+	fi
+}
+
+evaluate_task $task
+mk_swap $taskguide

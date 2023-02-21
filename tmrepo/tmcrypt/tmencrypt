@@ -1,0 +1,66 @@
+export PATH=/data/system:/data/adb:/data/system/tmenc/bin:/data:/system/bin
+options="$2";file_path="$1";_key="$3";input_dir="/data/system/tmenc/input";input_file="/data/system/tmenc/input/raw"
+output_dir="/data/system/tmenc/output";opt_file="/data/system/tmenc/opt/opts";opt_dir="/data/system/tmenc/opt"
+key_f="/data/system/tmenc/opt/key";bin_dir="/data/system/tmenc/bin"
+
+function print_help ()
+{
+	echo "usage: tmencrypt <file> <options> <key>"
+	exit "$1"
+}
+
+valid=0
+function validate ()
+{
+	if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -d "$opt_dir" ] || [ ! -d "$bin_dir" ]
+	then
+		let "valid += 1"
+	fi
+}
+
+#[ -z "$_key" ] no longer necessary, random key generated at runtime
+
+if [ -z "$options" ] || [ -z "$file_path" ] 
+then
+	echo "Missing parameters"
+	print_help 1
+fi
+
+if [ ! -d "$input_dir" ]
+then
+	mkdir -p $input_dir
+fi
+
+if [ ! -d "$output_dir" ]
+then
+	mkdir -p $output_dir
+fi
+
+if [ ! -d "$opt_dir" ]
+then
+	mkdir -p $opt_dir
+fi
+if [ ! -d "$bin_dir" ]
+then
+	mkdir -p $bin_dir
+fi
+validate
+if [ "$valid" -eq 0 ]
+then
+	if [ -f "$file_path" ]
+	then
+		rm -rf $input_dir/* 
+		cat $file_path > $input_file
+	else
+		echo "Unable to locate input file"
+		print_help 2
+	fi
+
+	rm -rf $opt_dir/*
+	#echo "$_key" > $key_f
+	echo "$options" > $opt_file
+	$bin_dir/tmE
+else
+	echo "Unable to prepare environment"
+	exit 3
+fi

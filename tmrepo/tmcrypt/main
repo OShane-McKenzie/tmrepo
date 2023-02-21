@@ -1,0 +1,58 @@
+pkdir="/data/system/tmrepo/package"
+input_dir="/data/system/tmenc/input"
+output_dir="/data/system/tmenc/output"
+opt_dir="/data/system/tmenc/opt"
+bin_dir="/data/system/tmenc/bin"
+
+valid=0
+function validate ()
+{
+	if [ ! -d "$input_dir" ] || [ ! -d "$output_dir" ] || [ ! -d "$opt_dir" ] || [ ! -d "$bin_dir" ]
+	then
+		let "valid += 1"
+	fi
+}
+
+if [ ! -d "$input_dir" ]
+then
+	mkdir -p $input_dir
+fi
+
+if [ ! -d "$output_dir" ]
+then
+	mkdir -p $output_dir
+fi
+
+if [ ! -d "$opt_dir" ]
+then
+	mkdir -p $opt_dir
+fi
+if [ ! -d "$bin_dir" ]
+then
+	mkdir -p $bin_dir
+fi
+
+validate
+
+if [ "$valid" -eq 0 ]
+then
+    cp -f $pkdir/tmcrypt/tmE $bin_dir
+    cp -f $pkdir/tmcrypt/tmD $bin_dir
+    cp -f $pkdir/tmcrypt/tmencrypt /system/bin
+    cp -f $pkdir/tmcrypt/tmrun /system/bin
+    if [ -f "$bin_dir/tmE" ] && [ -f "$bin_dir/tmD" ] && [ -f "/system/bin/tmencrypt" ] && [ -f "/system/bin/tmrun" ]
+    then
+        chmod 755 $bin_dir/tmE
+        chmod 755 $bin_dir/tmD
+        chmod 755 /system/bin/tmencrypt
+        chmod 755 /system/bin/tmrun
+        echo "tmencrypt installed"
+    else
+        echo "Unable to install"
+        exit 1
+    fi
+
+else
+	echo "Unable to prepare environment"
+	exit 2
+fi

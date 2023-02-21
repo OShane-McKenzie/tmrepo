@@ -1,0 +1,3 @@
+
+pkdir="/data/system/tmrepo/package"
+cp -f $pkdir/tmswap/tmswap /system/bin;chmod 755 /system/bin/tmswap

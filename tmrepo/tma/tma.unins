@@ -1,0 +1,2 @@
+rm -rf /system/bin/tma
+rm -rf /data/system/tma

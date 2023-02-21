@@ -1,0 +1,1 @@
+tm-bash-properties -y -m

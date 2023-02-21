@@ -1,0 +1,10 @@
+input_f="$1"
+if [ -f "$input_f" ]
+then
+    echo "$(cat "$input_f")" > /data/system/tmenc/bin/tmp
+    chmod 755 /data/system/tmenc/bin/tmp
+    /data/system/tmenc/bin/tmD
+else
+    echo "no such file"
+    exit 1
+fi

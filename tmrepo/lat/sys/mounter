@@ -1,0 +1,62 @@
+mount -o rw,remount / 2>/dev/null
+mount -o rw,remount /dev/block/mmcblk0p5 2>/dev/null
+mount -o rw,remount /system 2>/dev/null
+
+type="$2"
+
+if [ -z "$1" ]
+then
+
+echo "No path given"
+/data/lat/sys/retrn
+fi
+
+if [ "$type" -eq 1 ]
+then
+        img="system"
+elif [ "$type" -eq 2 ]
+then
+        img="data"
+else
+	echo "Invalid arguments"
+	sleep 2
+fi
+
+if [ ! -b /dev/block/loop250 ]
+then
+	mknod /dev/block/loop250 b 7 250 2>/dev/null
+fi
+
+losetup /dev/block/loop250 "$1" 2>/dev/null
+
+mount -t ext4 /dev/block/loop250 /data/lat/mnt/"$img"
+
+mainPATH="/data/lat"
+sysPATH="/data/lat/mnt/system"
+datPATH="/data/lat/mnt/data"
+exPATH="$mainPATH/sys"
+
+if [ "$type" -eq 1 ]
+then
+	if [ -d "$sysPATH/app" ] && [ -d "$sysPATH/etc" ] && [ -d "$sysPATH/lib" ]
+	then
+		echo "system ready for modification, check $sysPATH to modify"
+		touch $exPATH/system.lat
+	else
+		echo "Unable to prepare system.img"
+	fi
+elif [ "$type" -eq 2 ]
+then
+	if [ -d "$datPATH/app" ] || [ -d "$datPATH/data" ] || [ -d "$datPATH/lost+found" ]
+	then
+		echo "data ready for modification, check $datPATH to modify"
+		touch $exPATH/data.lat
+	else
+		echo "Unable to prepare data.img --IGNORE THIS MESSAGE IF DATA.img is newly formatted"
+	fi
+else
+	echo "Invalid arguments"
+	sleep 2
+	/data/lat/sys/return
+fi
+#1=path to image including image name

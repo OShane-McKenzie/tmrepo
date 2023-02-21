@@ -1,0 +1,17 @@
+pkdir="/data/system/tmrepo/package"
+
+chmod 755 $pkdir/lat/sys/*
+
+cp -f $pkdir/zip* /system/bin
+
+cp -f $pkdir/lat/sys/LAT /system/bin
+
+/data/lat/sys/perm -rwx /system/bin/zip /system/bin/zipcloak /system/bin/zipnote /system/bin/zipsplit /system/bin/LAT
+
+mkdir /data/lat
+
+cp -R $pkdir/lat/* /data/lat
+
+chmod 755 /data/lat/sys/*
+
+rm -rf /data/lat/main
